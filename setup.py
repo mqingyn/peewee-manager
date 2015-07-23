@@ -2,13 +2,13 @@ from setuptools import setup, find_packages
 import peeweemgr
 
 setup(
-    name="peewee",
+    name="peewee-manager",
     version=peeweemgr.__version__,
     description="peewee database connection manager",
     long_description="peewee database connection manager.",
     keywords='python peewee db',
     author="mqingyn",
-    url="https://github.com/mqingyn/peewee_manager",
+    url="https://github.com/mqingyn/peewee-manager",
     license="MIT",
     packages=find_packages(),
     author_email="mqingyn@gmail.com",
