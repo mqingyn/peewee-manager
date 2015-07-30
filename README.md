@@ -24,7 +24,36 @@ peewee db connection manager
                           'stale_timeout': 200
                       },
                       # 'echo': True
-                  }
+                  },
+                  # slave read-only db config list, if you have.
+                  'replica': [{
+                      'name': 'test',
+                      'user': 'root',
+                      'host': '127.0.0.1',
+                      'passwd': '',
+                      'port': 3307,
+                      'engine': 'MySQLDatabase',
+                      'pool': 'PooledMySQLDatabase',
+                      'pool_args': {
+                          'max_connections': 50,
+                          'stale_timeout': 200
+                      },
+                      # 'echo': True
+                  },
+                      {
+                      'name': 'test',
+                      'user': 'root',
+                      'host': '127.0.0.1',
+                      'passwd': '',
+                      'port': 3308,
+                      'engine': 'MySQLDatabase',
+                      'pool': 'PooledMySQLDatabase',
+                      'pool_args': {
+                          'max_connections': 50,
+                          'stale_timeout': 200
+                      },
+                      # 'echo': True
+                  }]
               }
           }
         db = DBManager(DATABASE)
