@@ -32,7 +32,6 @@ def load_class(s):
     mod = sys.modules[path]
     return getattr(mod, klass)
 
-
 class DBManager(object):
     def __init__(self, setting, name='default', database=None, replica=()):
         self.setting = setting
@@ -76,12 +75,21 @@ class DBManager(object):
         except KeyError:
             raise ImproperlyConfigured('Please specify a "name" and "engine" for your database')
 
+        wrap_retry_handler = lambda dbclass_name, dbclass: type("Retry%s" % dbclass_name,
+                                                                (RetryOperationalError, dbclass,),
+                                                                {
+                                                                    '__module__': dbclass.__module__
+                                                                })
+
         if pool:
             pool_class = load_class("playhouse.pool.%s" % pool) if pool else None
 
             try:
-                dbpool = pool_class(database_name, max_connections=pool_args.get('max_connections', 20),
-                                    stale_timeout=pool_args.get('stale_timeout', None), **setting)
+
+                dbpool = wrap_retry_handler(pool, pool_class)(database_name,
+                                                              max_connections=pool_args.get('max_connections', 20),
+                                                              stale_timeout=pool_args.get('stale_timeout', None),
+                                                              **setting)
                 return dbpool
             except ImportError:
                 raise ImproperlyConfigured('Unable to import pool class: "%s"' % pool)
@@ -89,13 +97,14 @@ class DBManager(object):
             try:
                 database_class = load_class('peewee.%s' % engine)
                 assert issubclass(database_class, peewee.Database)
+
             except ImportError:
                 raise ImproperlyConfigured('Unable to import: "%s"' % engine)
             except AttributeError:
                 raise ImproperlyConfigured('Database engine not found: "%s"' % engine)
             except AssertionError:
                 raise ImproperlyConfigured('Database engine not a subclass of peewee.Database: "%s"' % engine)
-            return database_class(database_name, **setting)
+            return wrap_retry_handler(engine, database_class)(database_name, **setting)
 
     def set_echo(self):
         import logging
