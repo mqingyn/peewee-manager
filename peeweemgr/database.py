@@ -24,7 +24,7 @@ import sys
 import peewee
 from peewee import Model, ImproperlyConfigured
 from playhouse.read_slave import ReadSlaveModel
-
+from playhouse.shortcuts import RetryOperationalError
 
 def load_class(s):
     path, klass = s.rsplit('.', 1)
